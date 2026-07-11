@@ -246,6 +246,19 @@ export default function GridMaker() {
     window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
   }
 
+  function shareNative() {
+    canvasRef.current.toBlob(async (blob) => {
+      const file = new File([blob], 'musicgrid.png', { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: title || 'MusicGrid', text: (title || '私の音楽グリッド') + ' #MusicGrid' });
+        } catch (e) {}
+      } else {
+        toast('この端末は直接共有に非対応。画像を保存して投稿してね');
+      }
+    }, 'image/png');
+  }
+
   return (
     <div className="wrap">
       <div className="panel">
@@ -334,6 +347,7 @@ export default function GridMaker() {
         <div className="toolbar" style={{ marginTop: 12 }}>
           <button onClick={download}>画像を保存</button>
           <button className="secondary" onClick={shareX}>Xで共有</button>
+          <button className="secondary" onClick={shareNative}>スマホで共有(インスタ等)</button>
         </div>
         <p className="hint" style={{ marginTop: 8 }}>保存した画像をポスト・投稿に添付してね</p>
       </div>
