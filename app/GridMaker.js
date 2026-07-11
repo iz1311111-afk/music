@@ -45,6 +45,7 @@ export default function GridMaker() {
   const [selected, setSelected] = useState(null);
   const [format, setFormat] = useState('x169');
   const [done, setDone] = useState('');
+  const [pubUrl, setPubUrl] = useState('');
   const [toastMsg, setToastMsg] = useState('');
   const canvasRef = useRef(null);
   const toastTimer = useRef(null);
@@ -271,7 +272,7 @@ export default function GridMaker() {
 
   function shareX() {
     const text = encodeURIComponent(`${title || '私の音楽グリッド'} #MusicGrid #私を象徴する24枚`);
-    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent('https://musicgrid-nine.vercel.app')}`, '_blank');
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(pubUrl || 'https://musicgrid-nine.vercel.app')}`, '_blank');
   }
 
   function shareNative() {
@@ -285,6 +286,18 @@ export default function GridMaker() {
         toast('この端末は直接共有に非対応。画像を保存して投稿してね');
       }
     }, 'image/png');
+  }
+
+  async function publish() {
+    const filled = items.filter(Boolean);
+    if (!filled.length) { toast('まず曲やアルバムを追加してね'); return; }
+    toast('公開URLを作成中…');
+    try {
+      const res = await fetch('/api/grids', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, cols, rows, items }) });
+      const d = await res.json();
+      if (d.id) { setPubUrl(window.location.origin + '/g/' + d.id); toast('公開URLができました!'); }
+      else { toast('作成に失敗しました'); }
+    } catch (e) { toast('作成に失敗しました'); }
   }
 
   return (
@@ -376,7 +389,9 @@ export default function GridMaker() {
           <button onClick={download}>画像を保存</button>
           <button className="secondary" onClick={shareX}>Xで共有</button>
           <button className="secondary" onClick={shareNative}>スマホで共有(インスタ等)</button>
+          <button onClick={publish}>公開URLを作る</button>
         </div>
+        {pubUrl ? <p className="hint" style={{ marginTop: 8 }}><a href={pubUrl} target="_blank" rel="noopener" style={{ color: 'var(--accent)' }}>{pubUrl}</a> <button className="secondary" style={{ padding: '4px 10px', fontSize: 12, marginLeft: 6 }} onClick={() => { navigator.clipboard.writeText(pubUrl); toast('コピーしました'); }}>コピー</button></p> : null}
         <p className="hint" style={{ marginTop: 8 }}>保存した画像をポスト・投稿に添付してね</p>
       </div>
 
