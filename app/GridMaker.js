@@ -50,6 +50,7 @@ export default function GridMaker() {
   const [toastMsg, setToastMsg] = useState('');
   const canvasRef = useRef(null);
   const toastTimer = useRef(null);
+  const blobRef = useRef(null);
 
   const slots = cols * rows;
 
@@ -262,6 +263,7 @@ export default function GridMaker() {
 
     setDone(fmt.label);
     setImgUrl(cv.toDataURL('image/png'));
+    cv.toBlob((b) => { blobRef.current = b; }, 'image/png');
     setTimeout(() => { const el = document.getElementById('mg-preview'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }, 50);
   }
 
@@ -277,17 +279,41 @@ export default function GridMaker() {
     window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(pubUrl || 'https://musicgrid-nine.vercel.app')}`, '_blank');
   }
 
-  function shareNative() {
-    canvasRef.current.toBlob(async (blob) => {
-      const file = new File([blob], 'musicgrid.png', { type: 'image/png' });
+  async function shareNative() {
+    const shareText = (title || '私の音楽グリッド') + ' #MusicGrid';
+    const shareUrl = pubUrl || 'https://musicgrid-nine.vercel.app';
+    if (!navigator.share) { toast('この端末は共有非対応。画像を長押しで保存してね'); return; }
+    const b = blobRef.current;
+    if (b) {
+      const file = new File([b], 'musicgrid.png', { type: 'image/png' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
-          await navigator.share({ files: [file], title: title || 'MusicGrid', text: (title || '私の音楽グリッド') + ' #MusicGrid https://musicgrid-nine.vercel.app' });
-        } catch (e) {}
-      } else {
-        toast('この端末は直接共有に非対応。画像を保存して投稿してね');
+          await navigator.share({ files: [file], title: title || 'MusicGrid', text: shareText + ' ' + shareUrl });
+          return;
+        } catch (e) { if (e && e.name === 'AbortError') return; }
       }
-    }, 'image/png');
+    }
+    try {
+      await navigator.share({ title: title || 'MusicGrid', text: shareText, url: shareUrl });
+    } catch (e) { if (!e || e.name !== 'AbortError') toast('共有できませんでした。画像を長押しで保存してね'); }
+  }
+
+  function copyUrl() {
+    const ok = () => toast('コピーしました');
+    const fallback = () => {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = pubUrl;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        ok();
+      } catch (e) { window.prompt('長押しでコピーしてね', pubUrl); }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(pubUrl).then(ok).catch(fallback);
+    } else { fallback(); }
   }
 
   async function publish() {
@@ -395,7 +421,7 @@ export default function GridMaker() {
           <button className="secondary" onClick={shareNative}>スマホで共有(インスタ等)</button>
           <button onClick={publish}>公開URLを作る</button>
         </div>
-        {pubUrl ? <p className="hint" style={{ marginTop: 8 }}><a href={pubUrl} target="_blank" rel="noopener" style={{ color: 'var(--accent)' }}>{pubUrl}</a> <button className="secondary" style={{ padding: '4px 10px', fontSize: 12, marginLeft: 6 }} onClick={() => { navigator.clipboard.writeText(pubUrl); toast('コピーしました'); }}>コピー</button></p> : null}
+        {pubUrl ? <p className="hint" style={{ marginTop: 8 }}><a href={pubUrl} target="_blank" rel="noopener" style={{ color: 'var(--accent)' }}>{pubUrl}</a> <button className="secondary" style={{ padding: '4px 10px', fontSize: 12, marginLeft: 6 }} onClick={copyUrl}>コピー</button></p> : null}
         <p className="hint" style={{ marginTop: 8 }}>保存した画像をポスト・投稿に添付してね(スマホは画像長押しでも保存できます)</p>
       </div>
 
