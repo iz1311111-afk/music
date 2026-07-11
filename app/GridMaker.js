@@ -46,6 +46,7 @@ export default function GridMaker() {
   const [format, setFormat] = useState('x169');
   const [done, setDone] = useState('');
   const [pubUrl, setPubUrl] = useState('');
+  const [imgUrl, setImgUrl] = useState('');
   const [toastMsg, setToastMsg] = useState('');
   const canvasRef = useRef(null);
   const toastTimer = useRef(null);
@@ -260,7 +261,8 @@ export default function GridMaker() {
     ctx.fillText('MusicGrid β — musicgrid-nine.vercel.app', W - M, H - Math.round(M * 0.5));
 
     setDone(fmt.label);
-    setTimeout(() => cv.scrollIntoView({ behavior: 'smooth' }), 50);
+    setImgUrl(cv.toDataURL('image/png'));
+    setTimeout(() => { const el = document.getElementById('mg-preview'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }, 50);
   }
 
   function download() {
@@ -291,6 +293,7 @@ export default function GridMaker() {
   async function publish() {
     const filled = items.filter(Boolean);
     if (!filled.length) { toast('まず曲やアルバムを追加してね'); return; }
+    if (pubUrl) { toast('作成済みです(下のURL)'); return; }
     toast('公開URLを作成中…');
     try {
       const res = await fetch('/api/grids', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, cols, rows, items }) });
@@ -366,7 +369,7 @@ export default function GridMaker() {
         </div>
         <div className="tracklist">
           {items.map((it, i) => (it && i < slots ? (
-            <div key={i}>{i + 1}. <b>{it.title}</b> — {it.artist}{it.id ? <a href={(it.type === 'album' ? 'https://album.link/i/' : 'https://song.link/i/') + it.id} target="_blank" rel="noopener" style={{ color: 'var(--accent)', marginLeft: 6 }}>聴く</a> : null}</div>
+            <div key={i}>{i + 1}. <b>{it.title}</b> — {it.artist}<a href={it.id ? (it.type === 'album' ? 'https://album.link/i/' : 'https://song.link/i/') + it.id : 'https://music.apple.com/jp/search?term=' + encodeURIComponent(it.title + ' ' + it.artist)} target="_blank" rel="noopener" style={{ color: 'var(--accent)', marginLeft: 6 }}>聴く</a></div>
           ) : null))}
         </div>
       </div>
@@ -382,9 +385,10 @@ export default function GridMaker() {
         <button className="secondary" onClick={() => { if (confirm('全部消しますか?')) { setItems([]); setSelected(null); setDone(''); } }}>全部クリア</button>
       </div>
 
-      <div className="panel preview" style={{ display: done ? 'block' : 'none' }}>
+      <div id="mg-preview" className="panel preview" style={{ display: done ? 'block' : 'none' }}>
         <div className="badge">できあがり! {done}</div>
-        <canvas ref={canvasRef} />
+        <canvas ref={canvasRef} style={{ display: 'none' }} />
+        {imgUrl ? <img src={imgUrl} alt="生成画像" style={{ maxWidth: '100%', borderRadius: 12, marginTop: 10, border: '1px solid var(--line)' }} /> : null}
         <div className="toolbar" style={{ marginTop: 12 }}>
           <button onClick={download}>画像を保存</button>
           <button className="secondary" onClick={shareX}>Xで共有</button>
@@ -392,7 +396,7 @@ export default function GridMaker() {
           <button onClick={publish}>公開URLを作る</button>
         </div>
         {pubUrl ? <p className="hint" style={{ marginTop: 8 }}><a href={pubUrl} target="_blank" rel="noopener" style={{ color: 'var(--accent)' }}>{pubUrl}</a> <button className="secondary" style={{ padding: '4px 10px', fontSize: 12, marginLeft: 6 }} onClick={() => { navigator.clipboard.writeText(pubUrl); toast('コピーしました'); }}>コピー</button></p> : null}
-        <p className="hint" style={{ marginTop: 8 }}>保存した画像をポスト・投稿に添付してね</p>
+        <p className="hint" style={{ marginTop: 8 }}>保存した画像をポスト・投稿に添付してね(スマホは画像長押しでも保存できます)</p>
       </div>
 
       <div className={'toast' + (toastMsg ? ' show' : '')}>{toastMsg}</div>
