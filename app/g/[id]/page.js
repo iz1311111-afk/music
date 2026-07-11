@@ -1,4 +1,5 @@
 import { SUPA_URL, SUPA_KEY } from '../../lib/supa';
+import TrackLink from '../../TrackLink';
 
 async function getGrid(id) {
   const res = await fetch(`${SUPA_URL}/rest/v1/grids?id=eq.${encodeURIComponent(id)}&select=*`, {
@@ -44,7 +45,7 @@ export default async function GridPage({ params }) {
           </div>
           <div className="tracklist">
             {items.map((it, i) => (
-              <div key={i}>{i + 1}. <b>{it.title}</b> — {it.artist}<a href={it.id ? (it.type === 'album' ? 'https://album.link/i/' : 'https://song.link/i/') + it.id : 'https://music.apple.com/jp/search?term=' + encodeURIComponent(it.title + ' ' + it.artist)} style={{ color: 'var(--accent)', marginLeft: 6 }}>聴く</a></div>
+              <div key={i}>{i + 1}. <b>{it.title}</b> — {it.artist}<TrackLink href={it.id ? (it.type === 'album' ? 'https://album.link/i/' : 'https://song.link/i/') + it.id : 'https://music.apple.com/jp/search?term=' + encodeURIComponent(it.title + ' ' + it.artist)} gid={g.id} title={it.title} artist={it.artist} /></div>
             ))}
           </div>
         </div>
