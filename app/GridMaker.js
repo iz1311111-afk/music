@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 const MODE_LABEL = { album: 'アルバム', song: '曲' };
 const FORMATS = {
@@ -51,6 +51,22 @@ export default function GridMaker() {
 
   const slots = cols * rows;
 
+  useEffect(() => {
+    try {
+      const s = JSON.parse(localStorage.getItem('mg_state') || 'null');
+      if (s) {
+        if (s.title) setTitle(s.title);
+        if (s.cols) setCols(s.cols);
+        if (s.rows) setRows(s.rows);
+        if (Array.isArray(s.items)) setItems(s.items);
+      }
+    } catch (e) {}
+  }, []);
+
+  useEffect(() => {
+    try { localStorage.setItem('mg_state', JSON.stringify({ title, cols, rows, items })); } catch (e) {}
+  }, [title, cols, rows, items]);
+
   function toast(msg) {
     setToastMsg(msg);
     clearTimeout(toastTimer.current);
@@ -80,6 +96,7 @@ export default function GridMaker() {
       art: (r.artworkUrl100 || '').replace('100x100', '600x600'),
       title: mode === 'album' ? r.collectionName : r.trackName,
       artist: r.artistName,
+      id: r.trackId || r.collectionId,
       type: mode
     };
     setItems(next);
@@ -336,7 +353,7 @@ export default function GridMaker() {
         </div>
         <div className="tracklist">
           {items.map((it, i) => (it && i < slots ? (
-            <div key={i}>{i + 1}. <b>{it.title}</b> — {it.artist}</div>
+            <div key={i}>{i + 1}. <b>{it.title}</b> — {it.artist}{it.id ? <a href={(it.type === 'album' ? 'https://album.link/i/' : 'https://song.link/i/') + it.id} target="_blank" rel="noopener" style={{ color: 'var(--accent)', marginLeft: 6 }}>聴く</a> : null}</div>
           ) : null))}
         </div>
       </div>
