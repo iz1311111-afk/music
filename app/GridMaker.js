@@ -267,7 +267,15 @@ export default function GridMaker() {
     setTimeout(() => { const el = document.getElementById('mg-preview'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }, 50);
   }
 
-  function download() {
+  async function download() {
+    const b = blobRef.current;
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile && b && navigator.canShare && navigator.canShare({ files: [new File([b], 'musicgrid.png', { type: 'image/png' })] })) {
+      try {
+        await navigator.share({ files: [new File([b], 'musicgrid.png', { type: 'image/png' })] });
+        return;
+      } catch (e) { if (e && e.name === 'AbortError') return; }
+    }
     const a = document.createElement('a');
     a.download = `musicgrid_${format}.png`;
     a.href = canvasRef.current.toDataURL('image/png');
@@ -288,7 +296,8 @@ export default function GridMaker() {
       const file = new File([b], 'musicgrid.png', { type: 'image/png' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
-          await navigator.share({ files: [file], title: title || 'MusicGrid', text: shareText + ' ' + shareUrl });
+          await navigator.share({ files: [file] });
+          toast('投稿には公開URLも貼ってね');
           return;
         } catch (e) { if (e && e.name === 'AbortError') return; }
       }
