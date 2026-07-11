@@ -404,7 +404,7 @@ export default function GridMaker() {
         </div>
         <div className="tracklist">
           {items.map((it, i) => (it && i < slots ? (
-            <div key={i}>{i + 1}. <b>{it.title}</b> — {it.artist}<a href={it.id ? (it.type === 'album' ? 'https://album.link/i/' : 'https://song.link/i/') + it.id : 'https://music.apple.com/jp/search?term=' + encodeURIComponent(it.title + ' ' + it.artist)} target="_blank" rel="noopener" style={{ color: 'var(--accent)', marginLeft: 6 }}>聴く</a></div>
+            <div key={i}>{i + 1}. <b>{it.title}</b> — {it.artist}<a href={it.id ? (it.type === 'album' ? 'https://album.link/i/' : 'https://song.link/i/') + it.id : 'https://music.apple.com/jp/search?term=' + encodeURIComponent(it.title + ' ' + it.artist)} style={{ color: 'var(--accent)', marginLeft: 6 }}>聴く</a></div>
           ) : null))}
         </div>
       </div>
@@ -430,7 +430,7 @@ export default function GridMaker() {
           <button className="secondary" onClick={shareNative}>スマホで共有(インスタ等)</button>
           <button onClick={publish}>公開URLを作る</button>
         </div>
-        {pubUrl ? <p className="hint" style={{ marginTop: 8 }}><a href={pubUrl} target="_blank" rel="noopener" style={{ color: 'var(--accent)' }}>{pubUrl}</a> <button className="secondary" style={{ padding: '4px 10px', fontSize: 12, marginLeft: 6 }} onClick={copyUrl}>コピー</button></p> : null}
+        {pubUrl ? <p className="hint" style={{ marginTop: 8 }}><a href={pubUrl} style={{ color: 'var(--accent)' }}>{pubUrl}</a> <button className="secondary" style={{ padding: '4px 10px', fontSize: 12, marginLeft: 6 }} onClick={copyUrl}>コピー</button></p> : null}
         <p className="hint" style={{ marginTop: 8 }}>保存した画像をポスト・投稿に添付してね(スマホは画像長押しでも保存できます)</p>
       </div>
 
