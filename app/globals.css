@@ -43,3 +43,22 @@ select{background:#fff;color:var(--text);border:1px solid var(--line);border-rad
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--btn);color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9;}
 .toast.show{opacity:1;}
 footer{text-align:center;color:var(--muted);font-size:11px;padding:20px;}
+
+@media (max-width: 480px) {
+  header{padding:16px 12px 4px;}
+  header h1{font-size:20px;}
+  .wrap{padding:8px 10px 40px;gap:10px;}
+  .panel{padding:10px;border-radius:12px;}
+  input[type=text]{font-size:16px;min-width:0;}
+  select{font-size:16px;padding:12px 10px;}
+  button{padding:12px 16px;font-size:14px;}
+  .seg button{padding:12px 14px;}
+  .row{gap:6px;}
+  .results{grid-template-columns:repeat(auto-fill,minmax(76px,1fr));max-height:250px;gap:6px;}
+  .grid{gap:4px;}
+  .tracklist{columns:1;font-size:13px;}
+  .tracklist div{padding:4px 0;}
+  .toolbar{gap:6px;}
+  .toolbar select,.toolbar button{flex:1 1 45%;}
+  .toast{width:calc(100% - 40px);text-align:center;}
+}
