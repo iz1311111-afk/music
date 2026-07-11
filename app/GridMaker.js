@@ -182,12 +182,23 @@ export default function GridMaker() {
         const x = listX + col * (colW + 24);
         const y = top + 18 + rowI * lineH;
         ctx.textAlign = 'left';
-        ctx.fillStyle = '#2b2b30';
-        ctx.font = `600 ${ts}px "Hiragino Sans","Noto Sans JP",sans-serif`;
-        ctx.fillText(truncate(ctx, `${it.n}. ${it.title}`, colW), x, y);
-        ctx.fillStyle = '#8f8d97';
-        ctx.font = `${ts - 5}px "Hiragino Sans","Noto Sans JP",sans-serif`;
-        ctx.fillText(truncate(ctx, it.artist, colW - 20), x + 20, y + ts);
+        if (lineH >= 46) {
+          ctx.fillStyle = '#2b2b30';
+          ctx.font = `600 ${ts}px "Hiragino Sans","Noto Sans JP",sans-serif`;
+          ctx.fillText(truncate(ctx, `${it.n}. ${it.title}`, colW), x, y);
+          ctx.fillStyle = '#55545c';
+          ctx.font = `500 ${ts - 3}px "Hiragino Sans","Noto Sans JP",sans-serif`;
+          ctx.fillText(truncate(ctx, it.artist, colW - 20), x + 20, y + ts);
+        } else {
+          ctx.fillStyle = '#2b2b30';
+          ctx.font = `600 ${ts}px "Hiragino Sans","Noto Sans JP",sans-serif`;
+          const head = truncate(ctx, `${it.n}. ${it.title}`, colW * 0.6);
+          ctx.fillText(head, x, y);
+          const hw = ctx.measureText(head).width;
+          ctx.fillStyle = '#55545c';
+          ctx.font = `500 ${ts - 2}px "Hiragino Sans","Noto Sans JP",sans-serif`;
+          ctx.fillText(truncate(ctx, ` — ${it.artist}`, colW - hw - 4), x + hw, y);
+        }
       });
     } else {
       let cell = Math.floor((W - 2 * M - (cols - 1) * GAP) / cols);
@@ -219,8 +230,8 @@ export default function GridMaker() {
         const head = truncate(ctx, `${it.n}. ${it.title}`, colW * 0.62);
         ctx.fillText(head, x, y);
         const hw = ctx.measureText(head).width;
-        ctx.fillStyle = '#8f8d97';
-        ctx.font = `${ts - 2}px "Hiragino Sans","Noto Sans JP",sans-serif`;
+        ctx.fillStyle = '#55545c';
+        ctx.font = `500 ${ts - 2}px "Hiragino Sans","Noto Sans JP",sans-serif`;
         ctx.fillText(truncate(ctx, ` — ${it.artist}`, colW - hw - 4), x + hw, y);
       });
     }
@@ -228,7 +239,7 @@ export default function GridMaker() {
     ctx.fillStyle = '#b8b6ae';
     ctx.font = `${Math.round(W * 0.014) + 6}px "Hiragino Sans",sans-serif`;
     ctx.textAlign = 'right';
-    ctx.fillText('MusicGrid β', W - M, H - Math.round(M * 0.5));
+    ctx.fillText('MusicGrid β — musicgrid-nine.vercel.app', W - M, H - Math.round(M * 0.5));
 
     setDone(fmt.label);
     setTimeout(() => cv.scrollIntoView({ behavior: 'smooth' }), 50);
@@ -243,7 +254,7 @@ export default function GridMaker() {
 
   function shareX() {
     const text = encodeURIComponent(`${title || '私の音楽グリッド'} #MusicGrid #私を代表する24枚`);
-    window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent('https://musicgrid-nine.vercel.app')}`, '_blank');
   }
 
   function shareNative() {
@@ -251,7 +262,7 @@ export default function GridMaker() {
       const file = new File([blob], 'musicgrid.png', { type: 'image/png' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
-          await navigator.share({ files: [file], title: title || 'MusicGrid', text: (title || '私の音楽グリッド') + ' #MusicGrid' });
+          await navigator.share({ files: [file], title: title || 'MusicGrid', text: (title || '私の音楽グリッド') + ' #MusicGrid https://musicgrid-nine.vercel.app' });
         } catch (e) {}
       } else {
         toast('この端末は直接共有に非対応。画像を保存して投稿してね');
