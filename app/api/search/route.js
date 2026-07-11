@@ -5,7 +5,7 @@ export async function GET(request) {
   const q = searchParams.get('q') || '';
   const entity = searchParams.get('entity') === 'song' ? 'song' : 'album';
   if (!q.trim()) return Response.json({ results: [] });
-  const url = `https://itunes.apple.com/search?term=${encodeURIComponent(q)}&entity=${entity}&country=JP&limit=50`;
+  const url = `https://itunes.apple.com/search?term=${encodeURIComponent(q)}&entity=${entity}&country=JP&limit=100`;
   try {
     const res = await fetch(url, { next: { revalidate: 3600 } });
     const data = await res.json();
