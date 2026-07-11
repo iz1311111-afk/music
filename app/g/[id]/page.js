@@ -36,7 +36,8 @@ export default async function GridPage({ params }) {
       </header>
       <div className="wrap">
         <div className="panel">
-          <h2 style={{ fontSize: 18, marginBottom: 12 }}>{g.title}</h2>
+          <h2 style={{ fontSize: 18, marginBottom: 4 }}>{g.title}</h2>
+          {g.author ? <p className="hint" style={{ marginBottom: 10 }}>by {g.user_id ? <a href={'/u/' + g.user_id} style={{ color: 'var(--accent)' }}>{g.author}</a> : g.author}</p> : <div style={{ marginBottom: 8 }} />}
           <div className="grid" style={{ gridTemplateColumns: `repeat(${g.cols},1fr)` }}>
             {items.map((it, i) => (
               <div className="slot filled" key={i} title={`${it.title} — ${it.artist}`}>
