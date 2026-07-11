@@ -100,6 +100,7 @@ export default function GridMaker() {
       title: mode === 'album' ? r.collectionName : r.trackName,
       artist: r.artistName,
       id: r.trackId || r.collectionId,
+      genre: r.primaryGenreName || null,
       type: mode
     };
     setItems(next);
@@ -331,7 +332,7 @@ export default function GridMaker() {
     if (pubUrl) { toast('作成済みです(下のURL)'); return; }
     toast('公開URLを作成中…');
     try {
-      const res = await fetch('/api/grids', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, cols, rows, items }) });
+      const res = await fetch('/api/grids', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, cols, rows, items, ...(function () { try { const u = JSON.parse(localStorage.getItem('mg_user') || 'null'); return u ? { user_id: u.id, author: u.name } : {}; } catch (e) { return {}; } })() }) });
       const d = await res.json();
       if (d.id) { setPubUrl(window.location.origin + '/g/' + d.id); toast('公開URLができました!'); }
       else { toast('作成に失敗しました'); }
