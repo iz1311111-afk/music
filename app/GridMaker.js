@@ -34,7 +34,7 @@ function fallbackCell(ctx, x, y, s, item) {
 }
 
 export default function GridMaker() {
-  const [title, setTitle] = useState('私を代表する24枚');
+  const [title, setTitle] = useState('私を象徴する24枚');
   const [cols, setCols] = useState(6);
   const [rows, setRows] = useState(4);
   const [mode, setMode] = useState('album');
@@ -253,7 +253,7 @@ export default function GridMaker() {
   }
 
   function shareX() {
-    const text = encodeURIComponent(`${title || '私の音楽グリッド'} #MusicGrid #私を代表する24枚`);
+    const text = encodeURIComponent(`${title || '私の音楽グリッド'} #MusicGrid #私を象徴する24枚`);
     window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent('https://musicgrid-nine.vercel.app')}`, '_blank');
   }
 
