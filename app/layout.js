@@ -1,6 +1,7 @@
 import './globals.css';
 import { Analytics } from '@vercel/analytics/react';
 import InAppNotice from './InAppNotice';
+import Nav from './Nav';
 
 export const metadata = {
   title: 'MusicGrid — 私を象徴する24枚',
@@ -16,7 +17,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="ja">
-      <body><InAppNotice />{children}<Analytics /></body>
+      <body><InAppNotice /><Nav />{children}<Analytics /></body>
     </html>
   );
 }
