@@ -44,7 +44,7 @@ export default async function GridPage({ params }) {
           </div>
           <div className="tracklist">
             {items.map((it, i) => (
-              <div key={i}>{i + 1}. <b>{it.title}</b> — {it.artist}{it.id ? <a href={(it.type === 'album' ? 'https://album.link/i/' : 'https://song.link/i/') + it.id} target="_blank" rel="noopener" style={{ color: 'var(--accent)', marginLeft: 6 }}>聴く</a> : null}</div>
+              <div key={i}>{i + 1}. <b>{it.title}</b> — {it.artist}<a href={it.id ? (it.type === 'album' ? 'https://album.link/i/' : 'https://song.link/i/') + it.id : 'https://music.apple.com/jp/search?term=' + encodeURIComponent(it.title + ' ' + it.artist)} target="_blank" rel="noopener" style={{ color: 'var(--accent)', marginLeft: 6 }}>聴く</a></div>
             ))}
           </div>
         </div>
