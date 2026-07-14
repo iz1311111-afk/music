@@ -1,8 +1,8 @@
 export const revalidate = 3600;
 
-async function j(url) {
+async function j(url, headers) {
   try {
-    const r = await fetch(url, { next: { revalidate: 3600 } });
+    const r = await fetch(url, { next: { revalidate: 3600 }, headers: headers || {} });
     return await r.json();
   } catch (e) { return null; }
 }
@@ -36,5 +36,12 @@ export async function GET(request) {
       push({ collectionName: d.title, artistName: d.artist && d.artist.name, artworkUrl100: d.cover_big, collectionId: d.id, primaryGenreName: null, src: 'deezer' });
     }
   });
+  if (out.length < 15 && entity === 'song') {
+    const mb = await j(`https://musicbrainz.org/ws/2/recording?query=${enc}&fmt=json&limit=15`, { 'User-Agent': 'MusicGrid/1.0 (https://musicgrid-nine.vercel.app)' });
+    ((mb && mb.recordings) || []).forEach((m) => {
+      const rel = (m.releases && m.releases[0]) || null;
+      push({ trackName: m.title, artistName: m['artist-credit'] && m['artist-credit'][0] && m['artist-credit'][0].name, collectionName: rel && rel.title, artworkUrl100: rel ? `https://coverartarchive.org/release/${rel.id}/front-250` : null, trackId: null, primaryGenreName: null, src: 'mb' });
+    });
+  }
   return Response.json({ results: out.slice(0, 150) });
 }
