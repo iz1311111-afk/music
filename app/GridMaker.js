@@ -101,6 +101,7 @@ export default function GridMaker() {
       artist: r.artistName,
       id: r.trackId || r.collectionId,
       genre: r.primaryGenreName || null,
+      src: r.src || 'itunes',
       type: mode
     };
     setItems(next);
@@ -405,7 +406,7 @@ export default function GridMaker() {
         </div>
         <div className="tracklist">
           {items.map((it, i) => (it && i < slots ? (
-            <div key={i}>{i + 1}. <b>{it.title}</b> — {it.artist}<a href={it.id ? (it.type === 'album' ? 'https://album.link/i/' : 'https://song.link/i/') + it.id : 'https://music.apple.com/jp/search?term=' + encodeURIComponent(it.title + ' ' + it.artist)} style={{ color: 'var(--accent)', marginLeft: 6 }}>聴く</a></div>
+            <div key={i}>{i + 1}. <b>{it.title}</b> — {it.artist}<a href={it.id ? (it.src === 'deezer' ? 'https://song.link/d/' + it.id : (it.type === 'album' ? 'https://album.link/i/' : 'https://song.link/i/') + it.id) : 'https://music.apple.com/jp/search?term=' + encodeURIComponent(it.title + ' ' + it.artist)} style={{ color: 'var(--accent)', marginLeft: 6 }}>聴く</a></div>
           ) : null))}
         </div>
       </div>
