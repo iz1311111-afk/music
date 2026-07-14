@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 export default function InAppNotice() {
   const [show, setShow] = useState(false);
   useEffect(() => {
+    try {
+      navigator.sendBeacon('/api/pv', new Blob([JSON.stringify({ path: window.location.pathname })], { type: 'application/json' }));
+    } catch (e) {}
     const ua = navigator.userAgent || '';
     if (/Twitter|Line\/|Instagram|FBAV|FBAN|FB_IAB/i.test(ua)) setShow(true);
   }, []);
