@@ -13,6 +13,7 @@ export async function POST(request) {
     artist: String(it.artist || '').slice(0, 120),
     id: it.id || null,
     genre: it.genre ? String(it.genre).slice(0, 40) : null,
+    src: it.src === 'deezer' ? 'deezer' : 'itunes',
     type: it.type === 'album' ? 'album' : 'song'
   } : null);
   const res = await fetch(`${SUPA_URL}/rest/v1/grids`, {
