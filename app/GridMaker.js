@@ -2,6 +2,8 @@
 import { useState, useRef, useEffect } from 'react';
 
 const MODE_LABEL = { album: 'アルバム', song: '曲' };
+const THEMES = ['夏の終わりに聴きたい24曲', '人生を変えた24枚', '雨の日に沈みる24曲', '青春の24曲', '夜ふかしのお供24曲', '元気が出る24曲', '泣きたい夜の24曲', 'ドライブで流したい24曲'];
+
 const FORMATS = {
   x169: { w: 1600, h: 900, label: 'X向け 16:9(1600×900)' },
   insta45: { w: 1080, h: 1350, label: 'インスタ投稿 4:5(1080×1350)' },
@@ -340,8 +342,19 @@ export default function GridMaker() {
     } catch (e) { toast('作成に失敗しました'); }
   }
 
+  const theme = THEMES[Math.floor(Date.now() / (7 * 24 * 3600 * 1000)) % THEMES.length];
+
   return (
     <div className="wrap">
+      <div className="panel" style={{ background: '#eef0ff', borderColor: '#d8dcff' }}>
+        <div className="row" style={{ justifyContent: 'space-between' }}>
+          <div>
+            <span className="hint">今週のお題</span>
+            <div style={{ fontSize: 14, fontWeight: 600 }}>{theme}</div>
+          </div>
+          <button className="primary" onClick={() => { setTitle(theme); toast('お題をセット!24枚選んでみよう'); }}>このお題で作る</button>
+        </div>
+      </div>
       <div className="panel">
         <div className="row">
           <input type="text" value={title} maxLength={30} onChange={(e) => setTitle(e.target.value)} />
