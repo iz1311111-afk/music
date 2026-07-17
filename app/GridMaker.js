@@ -133,6 +133,9 @@ export default function GridMaker() {
 
   function changeLayout(v) {
     const [c, r] = v.split('x').map(Number);
+    const s = c * r;
+    if (s === 9 && title.includes('24')) setTitle(title.replace('24', '9'));
+    else if (s >= 24 && title.includes('9') && !title.includes('24')) setTitle(title.replace('9', '24'));
     setCols(c); setRows(r);
     setItems(items.slice(0, c * r));
     setSelected(null);
@@ -362,6 +365,7 @@ export default function GridMaker() {
             <option value="6x4">4×6(24枚)</option>
             <option value="8x3">3×8(24枚)</option>
             <option value="5x5">5×5(25枚)</option>
+            <option value="3x3">3×3(9枚)</option>
           </select>
         </div>
       </div>
