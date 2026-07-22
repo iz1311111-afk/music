@@ -1,6 +1,7 @@
 import { SUPA_URL, SUPA_KEY } from '../../lib/supa';
 import TrackLink from '../../TrackLink';
 import Comments from '../../Comments';
+import LikeButton from '../../LikeButton';
 
 async function getGrid(id) {
   const res = await fetch(`${SUPA_URL}/rest/v1/grids?id=eq.${encodeURIComponent(id)}&select=*`, {
@@ -51,6 +52,7 @@ export default async function GridPage({ params }) {
             ))}
           </div>
         </div>
+        <div style={{ textAlign: 'center' }}><LikeButton gid={g.id} /></div>
         <Comments gid={g.id} />
         <div className="toolbar">
           <a href="/"><button className="primary">自分のグリッドを作る</button></a>
