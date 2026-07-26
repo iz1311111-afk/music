@@ -340,7 +340,10 @@ export default function GridMaker() {
     try {
       const res = await fetch('/api/grids', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, cols, rows, items, ...(function () { try { const u = JSON.parse(localStorage.getItem('mg_user') || 'null'); return u ? { user_id: u.id, author: u.name } : {}; } catch (e) { return {}; } })() }) });
       const d = await res.json();
-      if (d.id) { setPubUrl(window.location.origin + '/g/' + d.id); toast('公開URLができました!'); }
+      if (d.id) {
+        try { const m = JSON.parse(localStorage.getItem('mg_mine') || '[]'); localStorage.setItem('mg_mine', JSON.stringify([...m, d.id].slice(-20))); } catch (e2) {}
+        setPubUrl(window.location.origin + '/g/' + d.id); toast('公開URLができました!');
+      }
       else { toast('作成に失敗しました'); }
     } catch (e) { toast('作成に失敗しました'); }
   }
