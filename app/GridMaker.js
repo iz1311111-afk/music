@@ -1,8 +1,9 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
+import { currentTheme, themePath } from './lib/themes';
+import { track } from './lib/track';
 
 const MODE_LABEL = { album: 'アルバム', song: '曲' };
-const THEMES = ['夏の終わりに聴きたい24曲', '人生を変えた24枚', '雨の日に沈みる24曲', '青春の24曲', '夜ふかしのお供24曲', '元気が出る24曲', '泣きたい夜の24曲', 'ドライブで流したい24曲'];
 
 const FORMATS = {
   x169: { w: 1600, h: 900, label: 'X向け 16:9(1600×900)' },
@@ -268,13 +269,16 @@ export default function GridMaker() {
     ctx.textAlign = 'right';
     ctx.fillText('MusicGrid β — musicgrid-nine.vercel.app', W - M, H - Math.round(M * 0.5));
 
+    track('generate', { meta: format });
     setDone(fmt.label);
     setImgUrl(cv.toDataURL('image/png'));
     cv.toBlob((b) => { blobRef.current = b; }, 'image/png');
+    publish();
     setTimeout(() => { const el = document.getElementById('mg-preview'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }, 50);
   }
 
   async function download() {
+    track('save_image');
     const b = blobRef.current;
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (isMobile && b && navigator.canShare && navigator.canShare({ files: [new File([b], 'musicgrid.png', { type: 'image/png' })] })) {
@@ -291,12 +295,15 @@ export default function GridMaker() {
 
   function shareX() {
     const text = encodeURIComponent(`${title || '私の音楽グリッド'} #MusicGrid #私を象徴する24枚`);
-    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(pubUrl || 'https://musicgrid-nine.vercel.app')}`, '_blank');
+    track('share_x');
+    const target = (pubUrl || 'https://musicgrid-nine.vercel.app') + '?utm_source=x';
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(target)}`, '_blank');
   }
 
   async function shareNative() {
     const shareText = (title || '私の音楽グリッド') + ' #MusicGrid';
-    const shareUrl = pubUrl || 'https://musicgrid-nine.vercel.app';
+    const shareUrl = (pubUrl || 'https://musicgrid-nine.vercel.app') + '?utm_source=share';
+    track('share_native');
     if (!navigator.share) { toast('この端末は共有非対応。画像を長押しで保存してね'); return; }
     const b = blobRef.current;
     if (b) {
@@ -336,6 +343,7 @@ export default function GridMaker() {
     const filled = items.filter(Boolean);
     if (!filled.length) { toast('まず曲やアルバムを追加してね'); return; }
     if (pubUrl) { toast('作成済みです(下のURL)'); return; }
+    track('publish');
     toast('公開URLを作成中…');
     try {
       const res = await fetch('/api/grids', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, cols, rows, items, ...(function () { try { const u = JSON.parse(localStorage.getItem('mg_user') || 'null'); return u ? { user_id: u.id, author: u.name } : {}; } catch (e) { return {}; } })() }) });
@@ -348,7 +356,7 @@ export default function GridMaker() {
     } catch (e) { toast('作成に失敗しました'); }
   }
 
-  const theme = THEMES[Math.floor(Date.now() / (7 * 24 * 3600 * 1000)) % THEMES.length];
+  const theme = currentTheme();
 
   return (
     <div className="wrap">
@@ -356,7 +364,8 @@ export default function GridMaker() {
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <div>
             <span className="hint">今週のお題</span>
-            <div style={{ fontSize: 14, fontWeight: 600 }}>{theme}</div>
+            <div style={{ fontSize: 18, fontWeight: 700, margin: '2px 0 4px' }}>{theme}</div>
+            <a href={themePath(theme)} style={{ color: 'var(--accent)', fontSize: 12 }}>このお題のみんなの24枚を見る</a>
           </div>
           <button className="primary" onClick={() => { setTitle(theme); toast('お題をセット!24枚選んでみよう'); }}>このお題で作る</button>
         </div>
@@ -371,6 +380,7 @@ export default function GridMaker() {
             <option value="3x3">3×3(9枚)</option>
           </select>
         </div>
+        <p className="hint" style={{ marginTop: 8, fontSize: 12 }}>あなたらしい題名をつけると、見てもらえる確率が上がります</p>
       </div>
 
       <div className="panel">
@@ -453,7 +463,7 @@ export default function GridMaker() {
           <button onClick={publish}>公開URLを作る</button>
         </div>
         {pubUrl ? <p className="hint" style={{ marginTop: 8 }}><a href={pubUrl} style={{ color: 'var(--accent)' }}>{pubUrl}</a> <button className="secondary" style={{ padding: '4px 10px', fontSize: 12, marginLeft: 6 }} onClick={copyUrl}>コピー</button></p> : null}
-        <p className="hint" style={{ marginTop: 8 }}>保存した画像をポスト・投稿に添付してね(スマホは画像長押しでも保存できます)</p>
+        <p className="hint" style={{ marginTop: 8 }}>画像を保存したら、上の公開URLも一緒に貼ってね。URLがあると、見た人があなたのグリッドに来られます</p>
       </div>
 
       <div className={'toast' + (toastMsg ? ' show' : '')}>{toastMsg}</div>
