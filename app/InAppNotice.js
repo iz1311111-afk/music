@@ -5,7 +5,14 @@ export default function InAppNotice() {
   const [show, setShow] = useState(false);
   useEffect(() => {
     try {
-      navigator.sendBeacon('/api/pv', new Blob([JSON.stringify({ path: window.location.pathname })], { type: 'application/json' }));
+      let utm = null;
+      try { utm = new URLSearchParams(window.location.search).get('utm_source'); } catch (e) {}
+      const payload = {
+        path: window.location.pathname,
+        referrer: document.referrer || null,
+        utm: utm || null
+      };
+      navigator.sendBeacon('/api/pv', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
     } catch (e) {}
     const ua = navigator.userAgent || '';
     if (/Twitter|Line\/|Instagram|FBAV|FBAN|FB_IAB/i.test(ua)) setShow(true);
